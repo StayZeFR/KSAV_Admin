@@ -8,11 +8,11 @@ import java.util.logging.Logger;
 
 public class Database {
 
-    private static final String HOST = "localhost";
+    private static final String HOST = "172.28.36.4";
     private static final int PORT = 3306;
     private static final String DB = "ksav";
-    private static final String USER = "ksav";
-    private static final String PASSWORD = "ksav";
+    private static final String USER = "iblandin";
+    private static final String PASSWORD = "Dmnstrtr124-";
 
     private static Connection connection = null;
 
