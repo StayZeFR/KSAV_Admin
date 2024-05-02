@@ -4,7 +4,9 @@ import fr.btssio.ksav_admin.models.DAO.UtilisateurDAO;
 import fr.btssio.ksav_admin.models.DAO.UtilisateurRoleDAO;
 import fr.btssio.ksav_admin.models.entities.UtilisateurEntity;
 import fr.btssio.ksav_admin.views.HomeView;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -36,13 +38,13 @@ public class HomeController extends Controller {
         String msg = "Voulez vous vraiment supprimer " + (rows.length > 1 ? "ses utilisateurs" : "cet utilisateur") + "?";
         String[] options = {"Oui", "Non"};
         int choice = JOptionPane.showOptionDialog(null, msg, "Confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-        
+                
+        UtilisateurDAO dao = new UtilisateurDAO();
         if (choice == JOptionPane.YES_NO_OPTION) {
-            for (int i = 0; i < rows.length; i++) {
+            for (int i = rows.length - 1; i >= 0; i--) {
                 int id = (int) model.getValueAt(rows[i], 0);
-                UtilisateurDAO dao = new UtilisateurDAO();
-                dao.delete(id);
                 model.removeRow(rows[i]);
+                dao.delete(id);
             }
         }
     }
