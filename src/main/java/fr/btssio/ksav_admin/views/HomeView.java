@@ -1,10 +1,14 @@
 package fr.btssio.ksav_admin.views;
 
-import fr.btssio.ksav_admin.models.entities.UtilisateurRoleEntity;
+import fr.btssio.ksav_admin.models.entities.AgenceEntity;
+import fr.btssio.ksav_admin.models.entities.RoleEntity;
+import fr.btssio.ksav_admin.models.entities.UtilisateurRoleAgenceEntity;
 import fr.btssio.ksav_admin.utils.DateTool;
 import fr.btssio.ksav_admin.utils.StringTool;
 import java.sql.Timestamp;
 import java.util.List;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
@@ -23,7 +27,15 @@ public class HomeView extends View {
     @Override
     public void init() {
         this.renderUsersTable();
-        this.refresh((List<UtilisateurRoleEntity>) this.getParam("utilisateurs"));
+        this.refresh((List<UtilisateurRoleAgenceEntity>) this.getParam("utilisateurs"));
+        
+        List<AgenceEntity> agences = (List<AgenceEntity>) this.getParam("agences");
+        DefaultComboBoxModel<Object> model = new DefaultComboBoxModel<>();
+        model.addElement("Selectionner...");
+        for (AgenceEntity agence : agences) {
+            model.addElement(agence);
+        }
+        this.agenceList.setModel((ComboBoxModel<Object>) model);
     }
     
     /**
@@ -45,12 +57,12 @@ public class HomeView extends View {
      * 
      * @param entities 
      */
-    public void refresh(List<UtilisateurRoleEntity> entities) {
+    public void refresh(List<UtilisateurRoleAgenceEntity> entities) {
         JTable table = this.usersTable;
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.setRowCount(0);
         Object[] row;
-        for (UtilisateurRoleEntity entity : entities) {
+        for (UtilisateurRoleAgenceEntity entity : entities) {
             int id = entity.getIdUtilisateur();
             String role = entity.getLibelle().toUpperCase();
             String pseudo = entity.getPseudo();
@@ -59,9 +71,20 @@ public class HomeView extends View {
             String sexe = (entity.getSexe() == 0 ? "Aucun" : (entity.getSexe() == 1 ? "Homme" : "Femme"));
             String dateNaissance = (entity.getDateNaissance() == null ? "" : DateTool.formatDate(entity.getDateNaissance(), "dd/MM/YYYY"));
             String dateCreation = (entity.getDateCreation() == null ? "" : DateTool.formatDate(Timestamp.valueOf(entity.getDateCreation()), "hh:mm dd/MM/YYYY"));
-            row = new Object[]{id, role, pseudo, nom, prenom, sexe, dateNaissance, dateCreation};
+            String agence = (entity.getRaisonSocial() == null ? "Aucune" : entity.getRaisonSocial());
+            row = new Object[]{id, role, agence, pseudo, nom, prenom, sexe, dateNaissance, dateCreation};
             model.addRow(row);
         }
+    }
+    
+    /**
+     * Permet de retourner la valeur du champ agence
+     *
+     * @return agence choisi
+     */
+    public int getAgenceSelected() {
+        Object agence = this.agenceList.getSelectedItem();
+        return (agence.toString().equals("Selectionner...") ? 0 : ((AgenceEntity) agence).getIDAGENCE());
     }
     
     /**
@@ -88,6 +111,8 @@ public class HomeView extends View {
         addButton = new javax.swing.JButton();
         editButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
+        agenceList = new javax.swing.JComboBox<>();
+        filter = new javax.swing.JButton();
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 3, 36)); // NOI18N
         jLabel1.setText("Liste des utilisateurs");
@@ -97,11 +122,11 @@ public class HomeView extends View {
 
             },
             new String [] {
-                "ID", "Rôle", "Pseudo", "Nom", "Prénom", "Sexe", "Date de naissance", "Date création"
+                "ID", "Rôle", "Agence", "Pseudo", "Nom", "Prénom", "Sexe", "Date de naissance", "Date création"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -123,6 +148,7 @@ public class HomeView extends View {
             usersTable.getColumnModel().getColumn(5).setResizable(false);
             usersTable.getColumnModel().getColumn(6).setResizable(false);
             usersTable.getColumnModel().getColumn(7).setResizable(false);
+            usersTable.getColumnModel().getColumn(8).setResizable(false);
         }
 
         addButton.setText("Ajouter");
@@ -163,23 +189,35 @@ public class HomeView extends View {
             }
         });
 
+        filter.setText("Filtrer");
+        filter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filterActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 843, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(editButton, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(20, Short.MAX_VALUE))
+                        .addComponent(agenceList, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(32, 32, 32)
+                        .addComponent(filter, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 922, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createSequentialGroup()
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 361, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(37, 37, 37)
+                            .addComponent(editButton, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(32, 32, 32)
+                            .addComponent(addButton, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -193,7 +231,11 @@ public class HomeView extends View {
                         .addComponent(deleteButton, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(agenceList)
+                    .addComponent(filter, javax.swing.GroupLayout.DEFAULT_SIZE, 30, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -220,11 +262,17 @@ public class HomeView extends View {
         // TODO add your handling code here:
     }//GEN-LAST:event_deleteButtonActionPerformed
 
+    private void filterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_filterActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
+    private javax.swing.JComboBox<Object> agenceList;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton editButton;
+    private javax.swing.JButton filter;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable usersTable;

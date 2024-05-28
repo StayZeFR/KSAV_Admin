@@ -3,7 +3,7 @@ package fr.btssio.ksav_admin.models.entities;
 import java.sql.Date;
 import java.time.LocalDateTime;
 
-public class UtilisateurRoleEntity implements Entity {
+public class UtilisateurRoleAgenceEntity implements Entity {
     
     private int IDUTILISATEUR;
     private int IDROLE;
@@ -14,8 +14,10 @@ public class UtilisateurRoleEntity implements Entity {
     private Date DATENAISSANCE;
     private int SEXE;
     private LocalDateTime DATECREATION;
+    private int IDAGENCE;
+    private String RAISONSOCIAL;
     
-    public UtilisateurRoleEntity(int idUtilisateur, int idRole, String libelle, String pseudo, String nom, String prenom, Date dateNaissance, int sexe, LocalDateTime dateCreation) {
+    public UtilisateurRoleAgenceEntity(int idUtilisateur, int idRole, String libelle, String pseudo, String nom, String prenom, Date dateNaissance, int sexe, LocalDateTime dateCreation, int idAgence, String raisonSocial) {
         this.IDUTILISATEUR = idUtilisateur;
         this.IDROLE = idRole;
         this.LIBELLE = libelle;
@@ -25,9 +27,11 @@ public class UtilisateurRoleEntity implements Entity {
         this.DATENAISSANCE = dateNaissance;
         this.SEXE = sexe;
         this.DATECREATION = dateCreation;
+        this.IDAGENCE = idAgence;
+        this.RAISONSOCIAL = raisonSocial;
     }
     
-    public UtilisateurRoleEntity() {}
+    public UtilisateurRoleAgenceEntity() {}
 
     public int getIdUtilisateur() {
         return this.IDUTILISATEUR;
@@ -101,6 +105,20 @@ public class UtilisateurRoleEntity implements Entity {
         this.DATECREATION = dateCreation;
     }
     
+    public int getIdAgence() {
+        return this.IDAGENCE;
+    }
     
+    public void setIdAgence(int idAgence) {
+        this.IDAGENCE = idAgence;
+    }
+    
+    public String getRaisonSocial() {
+        return this.RAISONSOCIAL;
+    }
+    
+    public void setRaisonSocial(String raisonSocial) {
+        this.RAISONSOCIAL = raisonSocial;
+    }
     
 }

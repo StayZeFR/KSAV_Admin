@@ -1,12 +1,11 @@
 package fr.btssio.ksav_admin.controllers;
 
+import fr.btssio.ksav_admin.models.DAO.AgenceDAO;
 import fr.btssio.ksav_admin.models.DAO.UtilisateurDAO;
-import fr.btssio.ksav_admin.models.DAO.UtilisateurRoleDAO;
+import fr.btssio.ksav_admin.models.DAO.UtilisateurRoleAgenceDAO;
 import fr.btssio.ksav_admin.models.entities.UtilisateurEntity;
 import fr.btssio.ksav_admin.views.HomeView;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -20,10 +19,14 @@ public class HomeController extends Controller {
 
     @Override
     protected void init() {
-        UtilisateurRoleDAO dao = new UtilisateurRoleDAO();
+        UtilisateurRoleAgenceDAO dao = new UtilisateurRoleAgenceDAO();
         
         Map<String, Object> params = new HashMap<>();
         params.put("utilisateurs", dao.getAll());
+        
+        AgenceDAO daoAgence = new AgenceDAO();
+        params.put("agences", daoAgence.getAll());
+        
         this.render(params);
     }
     
@@ -76,6 +79,16 @@ public class HomeController extends Controller {
         params.put("user", entity);
         this.moveTo(ActionController.class, params);
     }
+    
+    private void filter() {
+        UtilisateurRoleAgenceDAO dao = new UtilisateurRoleAgenceDAO();
+        int id = ((HomeView) this.view).getAgenceSelected();
+        if (id == 0) {
+            ((HomeView) this.view).refresh(dao.getAll());
+        } else {
+            ((HomeView) this.view).refresh(dao.getByAgence(id));
+        }
+    }
 
     @Override
     public void event(String name) {
@@ -83,6 +96,7 @@ public class HomeController extends Controller {
             case "Ajouter" -> this.addUser();
             case "Modifier" -> this.updateUser();
             case "Supprimer" -> this.deleteUser();
+            case "Filtrer" -> this.filter();
         }
     }
 
